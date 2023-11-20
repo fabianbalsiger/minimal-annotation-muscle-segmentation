@@ -56,6 +56,7 @@ jobs:
         shell: python
         run: |
           import hashlib
+          import os
           import sys
           python = "py{}.{}".format(*sys.version_info[:2])
           payload = sys.version.encode() + sys.executable.encode()
