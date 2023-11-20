@@ -1,0 +1,20 @@
+#  Caches
+**/.ipynb_checkpoints/*
+**/__pycache__/*
+*.pyc
+
+# Secrets
+.env
+
+# Environment
+venv/
+
+# coverage
+.coverage
+.coverage.*
+htmlcov
+
+# PyCharm
+# https://www.jetbrains.com/help/pycharm/setting-up-your-project.html#types
+#.idea/workspace.xml
+.idea
