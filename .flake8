@@ -7,5 +7,5 @@ extend-ignore =
    T100,  # line contains FIXME
    T101,  # line contains TODO
 # per-file-ignores =
-   # src/path/file.py"
-      # E123
+   docker/nnUNetTrainerV2_MUSEGAI.py"
+      INP001

@@ -6,7 +6,11 @@ Minimal annotation muscle segmentation (museg).
 
 # Usage
 
+Pull the Docker image for thigh muscle segmentation by
 
+```bash
+docker pull fabianbalsiger/museg:thigh-model3
+```
 
 # Development
 
