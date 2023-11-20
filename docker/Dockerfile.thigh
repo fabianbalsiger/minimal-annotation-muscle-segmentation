@@ -50,5 +50,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ./nnUNetTrainerV2_MUSEGAI.py /usr/local/lib/python3.10/dist-packages/nnunet/training/network_training/nnUNetTrainerV2_MUSEGAI.py
 ENV RESULTS_FOLDER="./nnUNet_trained_models"
 
+COPY ./nnunet_predict.py ./nnunet_predict.py
+COPY ./labels_thigh.txt ./labels.txt
+
 CMD ["-i", "./data/in", "-o", "./data/out"]
-ENTRYPOINT ["nnUNet_predict", "-tr", "nnUNetTrainerV2_MUSEGAI", "-m", "3d_fullres", "-p", "nnUNetPlansv2.1", "-t", "503"]
+ENTRYPOINT ["python", "nnunet_predict.py", "-tr", "nnUNetTrainerV2_MUSEGAI", "-m", "3d_fullres", "-p", "nnUNetPlansv2.1", "-t", "503"]

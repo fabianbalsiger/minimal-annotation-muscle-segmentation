@@ -67,3 +67,12 @@ docker run --rm --gpus all -v "$PWD":/data museg:thigh-model3 --disable_tta
 ```
 
 Use `docker run --rm --gpus all -v "$PWD":/data museg:thigh-model3 --help` to learn more about inference parameters.
+
+
+## Inference without a GPU
+
+If no GPU is available, just drop the `--gpus all`
+
+```bash
+docker run --rm -v "$PWD":/data museg:thigh-model3
+```

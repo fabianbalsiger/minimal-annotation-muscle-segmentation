@@ -1,11 +1,14 @@
 [flake8]
 disable-noqa = True
-max-line-length = 150
+max-line-length = 175
 extend-exclude = .git,__pycache__
 extend-ignore =
    E203,  # whitespace before : is not PEP8 compliant & conflicts with black
    T100,  # line contains FIXME
    T101,  # line contains TODO
 # per-file-ignores =
+   docker/nnunet_predict.py"
+      T201
+
    docker/nnUNetTrainerV2_MUSEGAI.py"
       INP001
