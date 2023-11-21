@@ -4,9 +4,7 @@ import pathlib
 import sys
 
 import click
-import SimpleITK as sitk
-
-from museg import api, itklabels
+from museg import api
 
 
 @click.command()
@@ -27,9 +25,8 @@ def cli(volumes, dest, model, side, fmt, tempdir):
 
     elif len(volumes) == 2:
         name = pathlib.Path(volumes[0]).stem
-        inputs = {name: [load_volume(vol) for vol in volumes]}
-        volumes = {name: [data["array"] for data in inputs[name]] for vol in inputs}
-        info = {name: inputs[name][0]["info"] for name in inputs}
+        volumes = {name: [api.Volume.load(file) for file in volumes]}
+        exts = {name: volumes[0].suffix}
 
     else:
         click.echo("You must provide two volume files")
@@ -49,28 +46,10 @@ def cli(volumes, dest, model, side, fmt, tempdir):
     segmented, labels = api.segment_volumes(volumes, model, side=side, tempdir=tempdir)
 
     # save
-    itklabels.write_labels(dest.parent / "labels.txt", labels)
+    labels.save(dest.parent / "labels.txt")
     for name, vol in segmented.items():
-        save_volume(dest, vol, info[name])
+        vol.save(dest / name, exts[name])
 
-
-#
-# functions
-
-
-def load_volume(file):
-    im = sitk.ReadImage(file)
-    array = sitk.GetArrayFromImage(im).T
-    info = {"spacing": im.GetSpacing(), "origin": im.GetOrigin(), "direction": im.GetDirection()}
-    return {"array": array, "info": info}
-
-
-def save_volume(file, vol, info):
-    im = sitk.GetImageFromArray(vol.T)
-    im.SetSpacing(info["spacing"])
-    im.SetOrigin(info["origin"])
-    im.SetDirection(info["direction"])
-    sitk.WriteImage(im, file)
 
 
 if __name__ == "__main__":

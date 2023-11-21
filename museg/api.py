@@ -7,8 +7,9 @@ import uuid
 import numpy as np
 
 import docker
+import SimpleITK as sitk
 
-from . import itklabels, metaimage
+
 
 
 def list_models():
@@ -59,18 +60,19 @@ def segment_volumes(volumes, model, *, side="left,right", tempdir=None):
 
         # save input data
         for name, vol in to_segment.items():
-            _save_volume(indir, name, vol)
+            vol.save(indir / name, '.nii.gz')
 
         # run model
         _run_model(model, indir, outdir)
 
         # recover outputs
-        labels = _load_labels(outdir)
+        
+        labels = Labels.load(outdir / 'labels.txt')
         for name, parts in volume_parts.items():
             if "left" in parts:
-                left = _load_volume(outdir, f"{name}_left")
+                left = Volume.load(outdir / f"{name}_left", 'nii.gz')
             if "right" in parts:
-                right = _load_volume(outdir, f"{name}_right")
+                right =  Volume.load(outdir / f"{name}_right", 'nii.gz')
             vol = _heal_volume(left, right)
             segmented[name] = vol
 
@@ -87,20 +89,65 @@ def segment_volumes(volumes, model, *, side="left,right", tempdir=None):
 # private functions
 
 
-def _load_labels(tmp):
-    filename = pathlib.Path(tmp) / "labels.txt"
-    return itklabels.read_labels(filename)
+
+class Labels:
+    """ label container """
+    def __init__(self, data):
+        self.data = data
+
+    def load(cls, file):
+        with open(file) as fp:
+            data = fp.read()
+        return cls(data)
+
+    def save(self, file):
+        with open(file, 'w') as fp:
+            fp.write(self.data)
 
 
-def _save_volume(tmp, name, vol):
-    filename = (pathlib.Path(tmp) / name).with_suffix(".mha")
-    metaimage.write(filename, vol)
+class Volume:
+    """ Image container """
+    def __init__(self, obj, **meta):
+        try:
+            self.array = obj if isinstance(obj, np.ndarray) else np.asarray(getattr(obj, 'array'))
+            self.spacing = meta.get('spacing', getattr(obj, 'spacing'))
+            self.origin = meta.get('origin', getattr(obj, 'origin'))
+            self.transform = meta.get('transform', getattr(obj, 'transform'))
+        except AttributeError as exc:
+            raise TypeError(f'Missing argument or attribute: {exc.name}')
+        
+    def __array__(self):
+        return self.array
+    
+    @property
+    def shape(self):
+        return self.array.shape
+    
+    @property
+    def ndim(self):
+        return self.array.ndim
+    
+    @property
+    def metadata(self):
+        return {'origin': self.origin, 'spacing': self.spacing, 'transform': self.transform}
 
+    def save(self, file, ext=None):
+        im = sitk.GetImageFromArray(self.arr)
+        im.SetSpacing(self.spacing)
+        im.SetOrigin(self.origin)
+        im.SetDirection(self.transform)
+        if ext:
+            file = pathlib.Path(file).with_suffix(ext)
+        sitk.WriteImage(im, file)
 
-def _load_volume(tmp, name):
-    filename = (pathlib.Path(tmp) / name).with_suffix(".nii.gz")
-    vol, _ = metaimage.read(filename)
-    return vol
+    def load(cls, file):
+        im = sitk.ReadImage(file)
+        array = sitk.GetArrayFromImage(im)
+        spacing = im.GetSpacing()
+        origin = im.GetOrigin()
+        transform = im.GetDirection()
+        return cls(array, origin=origin, spacing=spacing, transform=transform)
+
 
 
 def _split_volume(volume, side, axis=0):
@@ -108,13 +155,13 @@ def _split_volume(volume, side, axis=0):
     side = side.lower()
     size = volume.shape[axis]
     if "left" in side and "right" in side:
-        # split and flip left
+        # split into left and right parts
         indices = np.arange(size // 2)
-        left = np.take(volume, axis=axis, indices=indices[::-1])
-        right = np.take(volume, axis=axis, indices=indices + size // 2)
+        left = Volume(np.take(volume, axis=axis, indices=indices), **volume.metadata)
+        right = Volume(np.take(volume, axis=axis, indices=indices + size // 2), **volume.metadata)
     elif "left" in side:
-        # flip left
-        left = np.flip(volume, axis=axis)
+        # do nothing
+        left = volume
         right = None
     elif "right" in side:
         # do nothing
@@ -127,9 +174,9 @@ def _split_volume(volume, side, axis=0):
 
 def _heal_volume(left, right, *, axis=0):
     if left is not None and right is not None:
-        return np.concatenate([np.flip(left, axis=axis), right], axis=axis)
+        return Volume(np.concatenate([left, right], axis=axis), **left.metadata)
     elif left is not None:
-        return np.flip(left, axis=axis)
+        return left
     elif right is not None:
         return right
     else:
@@ -147,7 +194,6 @@ def _check_volumes(volumes, *, nvolumes=2):
 def _setup_volumes(volumes):
     if isinstance(volumes, dict):
         input_type = "dict"
-        volumes = volumes
     elif isinstance(volumes, list) and all(isinstance(item, np.ndarray) for item in volumes):
         # a single case
         input_type = "single"
@@ -158,6 +204,7 @@ def _setup_volumes(volumes):
         volumes = {str(uuid.uuid1()): vol for vol in volumes}
     else:
         raise ValueError("`volumes` should be a (dict of) list of ndarrays")
+    volumes = {name: Volume(vol) for name, vol in volumes.items()}
     return input_type, volumes
 
 
