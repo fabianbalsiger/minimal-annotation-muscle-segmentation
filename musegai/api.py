@@ -8,6 +8,8 @@ import docker
 import SimpleITK as sitk
 
 
+SIDES = ['left', 'right', 'left+right']
+
 def list_models():
     """List available models."""
     return ["thigh-model3"]
@@ -234,10 +236,17 @@ def _setup_volumes(volumes):
     volumes = {name: [Volume(vol) for vol in vols] for name, vols in volumes.items()}
     return input_type, volumes
 
+# docker stuff
+
+def _get_image(model):
+    """ get docker image name """
+    return f"fabianbalsiger/museg:{model}"
+
 
 def _run_model(model, indir, outdir):
     """Run inference."""
     if model == "test":
+        print('Running dummy inference model (no docker)')
         # dummy segmentation model
         with open(outdir / "labels.txt", "w") as fp:
             fp.write("labels")
@@ -250,8 +259,10 @@ def _run_model(model, indir, outdir):
         return
 
     client = docker.from_env()
+    image = _get_image(model)
+    print(f'Running inference model \'{model}\' (`{image}`)')
     client.containers.run(
-        f"fabianbalsiger/museg:{model}",
+        image,
         remove=True,
         device_requests=[docker.types.DeviceRequest(device_ids=["all"], capabilities=[["gpu"]])],
         volumes={indir.parent: {"bind": "/data", "mode": "rw"}},
@@ -263,5 +274,7 @@ def _pull_if_not_exists(model: str):
     if model == "test":
         return
     client = docker.from_env()
-    if not len(client.images.list(name=f"fabianbalsiger/museg:{model}")):
+    image = _get_image(model)
+    if not len(client.images.list(name=image)):
+        print(f'Pulling image `{image}`, this may take a while...')
         client.images.pull(f"fabianbalsiger/museg:{model}")

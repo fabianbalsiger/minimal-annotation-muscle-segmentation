@@ -5,7 +5,6 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "MuSeg-AI"
 description = "A minimal annotation muscle segmentation toolbox."
-authors = ["Fabian Balsiger and Pierre-Yves Baudin <fabian.balsiger@insel.ch>"]
 requires-python = ">=3.10"
 version = "0.1.0"
 dependencies = [
@@ -20,10 +19,6 @@ cli = ["click"]
 [tool.setuptools]
 include-package-data = true
 
-[tool.setuptools.packages.find]
-include = ["musegai*"]
-namespaces = true
-
 # entry point
-# [project.scripts]
+[project.scripts]
 museg-ai = "musegai.cli:cli"
