@@ -6,11 +6,6 @@ import sys
 import click
 import api
 
-# from museg import api
-import importlib
-
-importlib.reload(api)
-
 
 @click.command()
 @click.argument("volumes", type=click.Path(exists=True), nargs=-1)
