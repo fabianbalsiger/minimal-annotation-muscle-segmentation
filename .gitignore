@@ -18,3 +18,7 @@ htmlcov
 # https://www.jetbrains.com/help/pycharm/setting-up-your-project.html#types
 #.idea/workspace.xml
 .idea
+
+# custom
+data/
+tmp/

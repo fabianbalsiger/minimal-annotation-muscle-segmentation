@@ -4,7 +4,12 @@ import pathlib
 import sys
 
 import click
-from museg import api
+import api
+
+# from museg import api
+import importlib
+
+importlib.reload(api)
 
 
 @click.command()
@@ -24,9 +29,9 @@ def cli(volumes, dest, model, side, fmt, tempdir):
         sys.exit(0)
 
     elif len(volumes) == 2:
-        name = pathlib.Path(volumes[0]).stem
-        volumes = {name: [api.Volume.load(file) for file in volumes]}
-        exts = {name: volumes[0].suffix}
+        volumes = [api.Volume.load(file) for file in volumes]
+        name = volumes[0].info["name"]
+        volumes = {name: volumes}
 
     else:
         click.echo("You must provide two volume files")
@@ -48,8 +53,7 @@ def cli(volumes, dest, model, side, fmt, tempdir):
     # save
     labels.save(dest.parent / "labels.txt")
     for name, vol in segmented.items():
-        vol.save(dest / name, exts[name])
-
+        vol.save(dest, volumes[name][0].info["extension"])
 
 
 if __name__ == "__main__":
