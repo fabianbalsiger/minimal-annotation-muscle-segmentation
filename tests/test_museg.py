@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from museg import __version__
+from musegai import __version__
 
 
 def test_version():

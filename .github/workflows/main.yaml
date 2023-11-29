@@ -34,22 +34,13 @@ jobs:
           python -m pip install --constraint=.github/workflows/constraints.txt --upgrade pip
           which python
 
-      - name: Set up Poetry cache
-        uses: actions/cache@v3
-        with:
-          path: venv
-          key: venv-${{ matrix.python-version }}-${{ hashFiles('poetry.lock') }}
-
-      - name: Install Poetry and Python dependencies
+      - name: Install Python dependencies
         run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          poetry --version
-          poetry config virtualenvs.in-project true
-          poetry config virtualenvs.create false
-          poetry config virtualenvs.path venv
           source venv/bin/activate
           which python
-          poetry install --no-root
+          pip install -r requirements.txt
+          pip install -r requirements-cli.txt
+          pip install -r requirements-dev.txt
 
       - name: Compute pre-commit cache key
         id: pre-commit-cache

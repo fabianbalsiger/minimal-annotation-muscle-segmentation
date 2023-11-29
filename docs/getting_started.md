@@ -66,23 +66,14 @@ python -m pip install --upgrade pip
 Note that the environment should load and unload automatically in the directory. Check it's working by cd-ing into & out of the repo.
 
 
-## 3. Install Python requirements into the virtual environment using [Poetry](https://python-poetry.org/docs/)
+## 3. Install Python requirements into the virtual environment
 
-Install Poetry onto your system by following the instructions here: [https://python-poetry.org/docs/]
-
-Note that Poetry "lives" outside of project/environment, and if you follow the recommended install
-process it will be installed isolated from the rest of your system.
+Install the Python requirements with pip.
 
 ```sh
-# Add the poetry plugin "up" for upgrading dependencies: https://github.com/MousaZeidBaker/poetry-plugin-up
-poetry self add poetry-plugin-up
-
-# Update Poetry regularly as you would any other system-level tool. Poetry is environment agnostic,
-# it doesn't matter if you run this command inside/outside the virtualenv.
-poetry self update
-
-# This command should be run inside the virtualenv.
-poetry install --no-root --sync
+pip install -r requirements.txt  # For the MuSegAI API
+pip install -r requirements-cli.txt  # For the command line interface (CLI)
+pip install -r requirements-dev.txt  # For development (especially pre-commit hook)
 ```
 
 
@@ -108,7 +99,6 @@ detect-secrets scan > .secrets.baseline
 
 # You may want to check/amend the exclusions in `.pre-commit-config.yaml` e.g.
 detect-secrets --verbose scan \
-    --exclude-files 'poetry\.lock' \
     --exclude-files '\.secrets\.baseline' \
     --exclude-files '\.env\.template' \
     --exclude-files '.*\.ipynb$', \

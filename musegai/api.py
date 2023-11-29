@@ -1,14 +1,18 @@
+"""API for muscle segmentation."""
+# pylint: disable=missing-function-docstring
+from __future__ import annotations
+
 import pathlib
 import tempfile
 import uuid
 
 import numpy as np
-
-import docker
 import SimpleITK as sitk
 
+import docker
 
-SIDES = ['left', 'right', 'left+right']
+SIDES = ["left", "right", "left+right"]
+
 
 def list_models():
     """List available models."""
@@ -16,8 +20,7 @@ def list_models():
 
 
 def segment_volumes(volumes, model, *, side="left,right", tempdir=None):
-    """segment volumes with specified model"""
-
+    """Segment volumes with specified model."""
     input_type, volumes = _setup_volumes(volumes)
 
     # check model
@@ -74,13 +77,11 @@ def segment_volumes(volumes, model, *, side="left,right", tempdir=None):
             vol = _heal_volume(left, right)
             segmented[name] = vol
 
-    # return
     if input_type == "dict":
         return segmented, labels
-    elif input_type == "single":
+    if input_type == "single":
         return next(segmented.values()), labels
-    elif input_type == "list":
-        return [segmented[name] for name in volumes], labels
+    return [segmented[name] for name in volumes], labels
 
 
 #
@@ -88,24 +89,24 @@ def segment_volumes(volumes, model, *, side="left,right", tempdir=None):
 
 
 class Labels:
-    """label container"""
+    """Label container."""
 
     def __init__(self, data):
         self.data = data
 
     @classmethod
     def load(cls, file):
-        with open(file) as fp:
+        with open(file, encoding="utf-8") as fp:
             data = fp.read()
         return cls(data)
 
     def save(self, file):
-        with open(file, "w") as fp:
+        with open(file, "w", encoding="utf-8") as fp:
             fp.write(self.data)
 
 
 class Volume:
-    """Image container"""
+    """Image container."""
 
     EXTENSIONS = [".mha", ".mhd", ".hdr", ".nii", ".nii.gz"]
 
@@ -116,7 +117,7 @@ class Volume:
             self.spacing = meta.pop("spacing", None) or getattr(obj, "spacing")
             self.transform = meta.pop("transform", None) or getattr(obj, "transform")
         except AttributeError as exc:
-            raise TypeError(f"Missing argument or attribute: {exc.name}")
+            raise TypeError(f"Missing argument or attribute: {exc.name}") from exc
         self.info = meta
 
     def __array__(self):
@@ -180,7 +181,7 @@ class Volume:
 
 
 def _split_volume(volume, side, axis=0):
-    """slit volumes according to side"""
+    """Split volumes according to side."""
     side = side.lower()
     size = volume.shape[axis]
     if "left" in side and "right" in side:
@@ -204,19 +205,18 @@ def _split_volume(volume, side, axis=0):
 def _heal_volume(left, right, *, axis=0):
     if left is not None and right is not None:
         return Volume(np.concatenate([right, left], axis=axis), **left.metadata)
-    elif left is not None:
+    if left is not None:
         return left
-    elif right is not None:
+    if right is not None:
         return right
-    else:
-        raise ValueError("Something went wrong")
+    raise ValueError("Something went wrong")
 
 
 def _check_volumes(volumes, *, nvolumes=2):
-    """safety checks"""
+    """Safety checks."""
     if not len(volumes) == nvolumes:
         raise ValueError("There should be 2 volumes")
-    elif len({vol.shape for vol in volumes}) != 1:
+    if len({vol.shape for vol in volumes}) != 1:
         raise ValueError("All volumes must have the same shape")
 
 
@@ -236,22 +236,24 @@ def _setup_volumes(volumes):
     volumes = {name: [Volume(vol) for vol in vols] for name, vols in volumes.items()}
     return input_type, volumes
 
+
 # docker stuff
 
+
 def _get_image(model):
-    """ get docker image name """
+    """Get docker image name."""
     return f"fabianbalsiger/museg:{model}"
 
 
 def _run_model(model, indir, outdir):
     """Run inference."""
     if model == "test":
-        print('Running dummy inference model (no docker)')
+        print("Running dummy inference model (no docker)")
         # dummy segmentation model
-        with open(outdir / "labels.txt", "w") as fp:
+        with open(outdir / "labels.txt", "w", encoding="utf-8") as fp:
             fp.write("labels")
         for file in indir.glob("*0000.nii.gz"):
-            name = str(file.name).split("_0000.nii.gz")[0]
+            name = str(file.name).split("_0000.nii.gz", maxsplit=1)[0]
             vol = Volume.load(file)
             roi = (vol.array > np.percentile(np.unique(vol), 10)).astype("uint16")
             roi = Volume(roi, **vol.metadata)
@@ -260,7 +262,7 @@ def _run_model(model, indir, outdir):
 
     client = docker.from_env()
     image = _get_image(model)
-    print(f'Running inference model \'{model}\' (`{image}`)')
+    print(f"Running inference model '{model}' (`{image}`)")
     client.containers.run(
         image,
         remove=True,
@@ -275,6 +277,6 @@ def _pull_if_not_exists(model: str):
         return
     client = docker.from_env()
     image = _get_image(model)
-    if not len(client.images.list(name=image)):
-        print(f'Pulling image `{image}`, this may take a while...')
+    if not client.images.list(name=image):
+        print(f"Pulling image `{image}`, this may take a while...")
         client.images.pull(f"fabianbalsiger/museg:{model}")
