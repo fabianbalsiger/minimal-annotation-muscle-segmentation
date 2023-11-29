@@ -1,0 +1,57 @@
+FROM nvidia/cuda:11.4.3-runtime-ubuntu20.04
+
+LABEL application="Thigh muscle segmentation on Dixon MRI"
+LABEL author="Fabian Balsiger and Pierre-Yves Baudin"
+
+ENV PYTHONUNBUFFERED=1
+
+# Set the working directory in the container
+WORKDIR /
+
+# SYSTEM
+RUN apt update --yes --quiet && apt install --yes --quiet --no-install-recommends software-properties-common
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt update --yes --quiet && DEBIAN_FRONTEND=noninteractive apt install --yes --quiet --no-install-recommends \
+    python3.10 python3.10-distutils build-essential curl \
+ && rm -rf /var/lib/apt/lists/*
+
+# Switch default Python version to 3.10
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 && \
+ update-alternatives --install /usr/bin/python python /usr/bin/python3.10 2 && \
+ update-alternatives --set python /usr/bin/python3.10 && \
+ update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1 && \
+ update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 2 && \
+ update-alternatives --set python3 /usr/bin/python3.10
+
+# Install pip
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py
+
+# Copy necessary files to the working directory
+COPY ./requirements.txt .
+
+# Copy the model to the working directory
+COPY ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/plans.pkl ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/plans.pkl
+COPY ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/postprocessing.json ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/postprocessing.json
+COPY ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_0/model_final_checkpoint.model ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_0/model_final_checkpoint.model
+COPY ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_0/model_final_checkpoint.model.pkl ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_0/model_final_checkpoint.model.pkl
+COPY ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_1/model_final_checkpoint.model ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_1/model_final_checkpoint.model
+COPY ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_1/model_final_checkpoint.model.pkl ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_1/model_final_checkpoint.model.pkl
+COPY ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_2/model_final_checkpoint.model ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_2/model_final_checkpoint.model
+COPY ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_2/model_final_checkpoint.model.pkl ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_2/model_final_checkpoint.model.pkl
+COPY ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_3/model_final_checkpoint.model ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_3/model_final_checkpoint.model
+COPY ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_3/model_final_checkpoint.model.pkl ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_3/model_final_checkpoint.model.pkl
+COPY ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_4/model_final_checkpoint.model ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_4/model_final_checkpoint.model
+COPY ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_4/model_final_checkpoint.model.pkl ./nnUNet_trained_models/nnUNet/3d_fullres/Task503_MuscleThigh/nnUNetTrainerV2_MUSEGAI__nnUNetPlansv2.1/fold_4/model_final_checkpoint.model.pkl
+
+# Install requirements
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy custom trainer and set nnU-Net environment variable
+COPY ./nnUNetTrainerV2_MUSEGAI.py /usr/local/lib/python3.10/dist-packages/nnunet/training/network_training/nnUNetTrainerV2_MUSEGAI.py
+ENV RESULTS_FOLDER="./nnUNet_trained_models"
+
+COPY ./nnunet_predict.py ./nnunet_predict.py
+COPY ./labels_thigh.txt ./labels.txt
+
+CMD ["-i", "./data/in", "-o", "./data/out"]
+ENTRYPOINT ["python", "nnunet_predict.py", "-tr", "nnUNetTrainerV2_MUSEGAI", "-m", "3d_fullres", "-p", "nnUNetPlansv2.1", "-t", "503"]
