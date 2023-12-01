@@ -82,7 +82,7 @@ def cli(volumes, dest, model, side, tempdir):
 
     # save
     click.echo(f"Saving results to `{dest}`")
-    labels.save(dest.parent / "labels.txt")
+    labels.save(dest / "labels.txt")
     for name, vol in segmented.items():
         vol.save(destfiles[name])
 
