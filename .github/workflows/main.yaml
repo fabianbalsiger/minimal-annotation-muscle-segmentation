@@ -31,7 +31,7 @@ jobs:
           which python
           python -m venv venv
           source venv/bin/activate
-          python -m pip install --constraint=.github/workflows/constraints.txt --upgrade pip
+          python -m pip install --constraint=.github/workflows/constraints.txt --upgrade pip setuptools
           which python
 
       - name: Install Python dependencies
