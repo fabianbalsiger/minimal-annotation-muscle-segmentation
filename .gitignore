@@ -17,6 +17,10 @@ htmlcov
 # Data
 docker/nnUNet_trained_models/*
 
+# Build
+build/
+*.egg-info/
+
 # PyCharm
 # https://www.jetbrains.com/help/pycharm/setting-up-your-project.html#types
 #.idea/workspace.xml

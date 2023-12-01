@@ -7,4 +7,7 @@ extend-ignore =
    T100,  # line contains FIXME
    T101,  # line contains TODO
 per-file-ignores =
+    docker/nnunet_predict.py: INP001, T201
+    docker/nnUNetTrainerV2_MUSEGAI.py: INP001
     musegai/api.py: D102, D105, D107, T201
+    musegai/cli.py: D301

@@ -7,7 +7,7 @@ import sys
 
 import click
 
-from . import api
+from musegai import api
 
 
 @click.command(context_settings={"show_default": True})
@@ -17,7 +17,7 @@ from . import api
 @click.option("--side", default="left+right", type=click.Choice(api.SIDES), help="Specify the limb's side(s).")
 @click.option("--tempdir", type=click.Path(exists=True), help="Location for temporary files.")
 def cli(volumes, dest, model, side, tempdir):
-    r"""Automatic muscle segmentation command line tool.
+    """Automatic muscle segmentation command line tool.
 
     \b
     VOLUMES can be:

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "numpy"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -38,6 +38,7 @@ dev = [
 ]
 
 [tool.setuptools]
+packages = ["musegai"]
 include-package-data = true
 py-modules = []  # avoid error with pip-compile, cf. https://github.com/jazzband/pip-tools/issues/1711
 
