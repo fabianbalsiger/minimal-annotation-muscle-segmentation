@@ -118,7 +118,7 @@ class Volume:
             self.transform = meta.pop("transform", None) or getattr(obj, "transform")
         except AttributeError as exc:
             raise TypeError(f"Missing argument or attribute: {exc.name}") from exc
-        self.info = {**meta.pop('info', {}), **meta}
+        self.info = {**meta.pop("info", {}), **meta}
 
     def __array__(self):
         return self.array
@@ -253,7 +253,7 @@ def _run_model(model, indir, outdir):
         with open(outdir / "labels.txt", "w", encoding="utf-8") as fp:
             fp.write("labels")
         for file in indir.glob("*0000.nii.gz"):
-            name = str(file.name).split("0000.nii.gz")[0]
+            name = str(file.name).split("0000.nii.gz", maxsplit=1)[0]
             vol = Volume.load(file)
             roi = (vol.array > np.percentile(np.unique(vol), 10)).astype("uint16")
             roi = Volume(roi, **vol.metadata)
