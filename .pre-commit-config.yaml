@@ -100,11 +100,20 @@ repos:
     hooks:
       - id: pip-compile
         name: "pip-compile requirements"
-        args: ["--output-file", "requirements.txt", "pyproject.toml"]
+        args:
+          [
+            "--no-emit-index-url",
+            "--no-emit-trusted-host",
+            "--output-file",
+            "requirements.txt",
+            "pyproject.toml",
+          ]
       - id: pip-compile
         name: "pip-compile cli requirements"
         args:
           [
+            "--no-emit-index-url",
+            "--no-emit-trusted-host",
             "--extra",
             "cli",
             "--output-file",
@@ -115,6 +124,8 @@ repos:
         name: "pip-compile development requirements"
         args:
           [
+            "--no-emit-index-url",
+            "--no-emit-trusted-host",
             "--extra",
             "dev",
             "--output-file",
