@@ -1,49 +1,50 @@
-###########
-# 📜 Poetry
-###########
-[tool.poetry]
-name = "museg"
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "MuSeg-AI"
+description = "A minimal annotation muscle segmentation toolbox."
+requires-python = ">=3.10"
 version = "0.1.0"
-description = "Minimal annotation muscle segmentation"
-authors = ["Fabian Balsiger and Pierre-Yves Baudin <fabian.balsiger@insel.ch>"]
-license = "UNLICENSED"
-#classifiers = ["Private :: Do Not Upload"]
-packages = [
-  { include = "museg", from = "museg" },
-  # Add more packages here, e.g.
-  # { include = "module_name", from = "museg" },
+dependencies = [
+    "numpy",
+    "SimpleITK",
+    "docker",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.10.10"
-# Everything below here is alphabetically sorted
-simpleitk = "^2.3.1"
+[project.optional-dependencies]
+cli = ["click"]
+dev = [
+    "black==23.11.0",
+    "coverage==7.3.2",
+    "detect-secrets==1.2.0",
+    "flake8==6.1.0",
+    "flake8-docstrings==1.7.0",
+    "flake8-eradicate==1.5.0",
+    "flake8-fixme==1.1.1",
+    "flake8-implicit-str-concat==0.4.0",
+    "flake8-no-pep420==2.7.0",
+    "flake8-print==5.0.0",
+    "flake8-return==1.2.0",
+    "ipdb==0.13.13",
+    "isort==5.12.0",
+    "jupyter-black==0.3.4",
+    "pip-audit==2.6.1",
+    "pre-commit==3.5.0",
+    "pylint==3.0.2",
+    "pytest==7.4.3",
+    "towncrier==23.11.0",
+]
 
-[tool.poetry.group.dev.dependencies]
-# Everything below here is alphabetically sorted
-black = "^23.11.0"
-coverage = "^7.3.2"
-detect-secrets = "1.2.0"
-flake8 = "^6.1.0"
-flake8-docstrings = "^1.7.0"
-flake8-eradicate = "^1.5.0"
-flake8-fixme = "^1.1.1"
-flake8-implicit-str-concat = "^0.4.0"
-flake8-no-pep420 = "^2.7.0"
-flake8-print = "^5.0.0"
-flake8-return = "^1.2.0"
-ipdb = "^0.13.13"
-isort = "^5.12.0"
-jupyter-black = "^0.3.4"
-pip-audit = "^2.6.1"
-pre-commit = "^3.5.0"
-pylint = "^3.0.2"
-pytest = "^7.4.3"
-towncrier = "^23.11.0"
+[tool.setuptools]
+packages = ["musegai"]
+include-package-data = true
+py-modules = []  # avoid error with pip-compile, cf. https://github.com/jazzband/pip-tools/issues/1711
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+# entry point
+[project.scripts]
+museg-ai = "musegai.cli:cli"
 
 ############
 # ✅ Linters
@@ -56,7 +57,7 @@ target-version = ["py310"]
 profile = "black"
 line_length = 175
 default_section = "THIRDPARTY"
-known_first_party = ["museg"]
+known_first_party = ["musegai"]
 sections = "FUTURE,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
 add_imports = "from __future__ import annotations"
 
@@ -81,7 +82,7 @@ logging-format-style = "new"
 # 📣 Towncrier
 ##############
 [tool.towncrier]
-package = "museg"
+package = "musegai"
 package_dir = "."
 filename = "CHANGELOG.md"
 directory = ".changelog/"

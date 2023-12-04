@@ -6,7 +6,6 @@ being installed and why, please see [docs/getting_started.md](docs/getting_start
 
 We assume the following are installed and configured:
   - [pyenv](https://github.com/pyenv/pyenv)
-  - [Poetry](https://python-poetry.org/docs/)
   - [direnv](https://direnv.net/)
 
 
@@ -24,9 +23,10 @@ pyenv virtualenv $(sed "s/\/envs\// /" .python-version)
 python -V
 python -m pip install --upgrade pip
 
-# Install dependencies with Poetry
-poetry self update
-poetry install --no-root --sync
+# Install dependencies with pip
+pip install -r requirements.txt  # For the MuSegAI API
+pip install -r requirements-cli.txt  # For the command line interface (CLI)
+pip install -r requirements-dev.txt  # For development (especially pre-commit hook)
 
 # Edit .env for storing secrets (.env is a copy of .env.template)
 direnv allow
@@ -34,7 +34,6 @@ direnv allow
 # Create and audit secrets baseline
 # N.B. Adjust the exclusions here depending on your needs (check .pre-commit-config.yaml)
 detect-secrets --verbose scan \
-    --exclude-files 'poetry\.lock' \
     --exclude-files '\.secrets\.baseline' \
     --exclude-files '\.env\.template' \
     --exclude-secrets 'password|ENTER_PASSWORD_HERE|INSERT_API_KEY_HERE' \
