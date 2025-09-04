@@ -74,7 +74,10 @@ def run_training(model, dirname, folds=(0, 1, 2, 3, 4), nepoch=1000, preprocess=
     dirname = str(pathlib.Path(dirname).resolve())
     client = docker.from_env()
     image = TRAIN_IMAGE
-    _pull_image(image)
+    try:
+        _pull_image(image)
+    except:
+        raise RuntimeError('Could not find museg-ai training image')
 
     print(f"Training model '{model}'")
 
