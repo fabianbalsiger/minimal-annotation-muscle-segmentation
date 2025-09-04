@@ -177,7 +177,7 @@ def segment(images, dest, dirname, filename, format, model, side, tempdir, verbo
 @click.option("-d", "--dest", type=click.Path(), help="Output directory for model files.")
 @click.option("--nchannel", type=int, default=1, help="Expected number of channels")
 @click.option("--folds", help="specify fold numbers to train as tuple")
-@click.option("--nepoch", type=click.Choice(["1", "10", "100", "250", "1000"]), default="250", help="Number of epochs")
+@click.option("--nepoch", type=click.Choice(["1", "10", "20", "50", "100", "250", "500", "750", "1000"]), default="250", help="Number of epochs")
 # @click.option("--split", is_flag=True, help="Split datasets into left and right parts")
 @click.option("--continue", "continue_training", is_flag=True, help="Continue training.")
 @click.option("-v", "--verbose", is_flag=True)
