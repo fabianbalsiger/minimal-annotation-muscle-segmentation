@@ -37,8 +37,8 @@ def list():
 @click.option("-f", "--format", default=".nii.gz", type=click.Choice([".nii.gz", ".mha", ".mhd", ".hdr"]))
 @click.option("--side", default="LR", type=click.Choice(["L", "R", "LR", "NA"]), help="Limb's side(s) in image")
 @click.option("--tempdir", type=click.Path(exists=True), help="Location for nnUNet temporary files.")
-@click.option("-v", "--verbose", is_flag=True, help="Show more information")
-def segment(images, dest, dirname, filename, format, model, side, tempdir, verbose, overwrite, yes, root):
+@click.option("-s", "--silent", is_flag=True, help="Hide details")
+def segment(images, dest, dirname, filename, format, model, side, tempdir, silent, overwrite, yes, root):
     """Apply segmentation model on dataset
 
     \b
@@ -49,7 +49,7 @@ def segment(images, dest, dirname, filename, format, model, side, tempdir, verbo
         - multiple path expressions are passed
     
     """
-    if verbose:
+    if not silent:
         logging.basicConfig(level=logging.INFO)
 
     # copy inputs to outputs
@@ -180,8 +180,8 @@ def segment(images, dest, dirname, filename, format, model, side, tempdir, verbo
 @click.option("--nepoch", type=click.Choice(["1", "10", "20", "50", "100", "250", "500", "750", "1000"]), default="250", help="Number of epochs")
 # @click.option("--split", is_flag=True, help="Split datasets into left and right parts")
 @click.option("--continue", "continue_training", is_flag=True, help="Continue training.")
-@click.option("-v", "--verbose", is_flag=True)
-def train(model, images, refs, train, dockerfile, nchannel, labelfile, root, dest, verbose, folds, preprocess, nepoch, continue_training):
+@click.option("-s", "--silent", is_flag=True)
+def train(model, images, refs, train, dockerfile, nchannel, labelfile, root, dest, silent, folds, preprocess, nepoch, continue_training):
     """Train segmentation model on dataset
 
     \b
@@ -191,7 +191,7 @@ def train(model, images, refs, train, dockerfile, nchannel, labelfile, root, des
     
     """
 
-    if verbose:
+    if not silent:
         logging.basicConfig(level=logging.INFO)
     nepoch = int(nepoch)
 
@@ -312,8 +312,8 @@ def train(model, images, refs, train, dockerfile, nchannel, labelfile, root, des
 @click.option("-f", "--format", default=".nii.gz", type=click.Choice([".nii.gz", ".mha", ".mhd", ".hdr"]))
 @click.option("--side", default="LR", type=click.Choice(["L", "R", "LR", "NA"]), help="Limb's side(s) in image")
 @click.option("--tempdir", type=click.Path(exists=True), help="Location for nnUNet temporary files.")
-@click.option("-v", "--verbose", is_flag=True, help="Show more information")
-def test(model, data, root, dest, filename, dirname, format, side, tempdir, verbose):
+@click.option("-s", "--silent", is_flag=True, help="Show more information")
+def test(model, data, root, dest, filename, dirname, format, side, tempdir, silent):
     """Test segmentation model on dataset
 
     \b  
@@ -326,7 +326,7 @@ def test(model, data, root, dest, filename, dirname, format, side, tempdir, verb
         Predictions are provided, inference is not run.
 
     """
-    if verbose:
+    if not silent:
         logging.basicConfig(level=logging.INFO)
 
     # copy inputs to outputs
@@ -509,11 +509,11 @@ def test(model, data, root, dest, filename, dirname, format, side, tempdir, verb
 @cli.command(context_settings={"show_default": True})
 @click.argument("model")
 @click.argument("folder", type=click.Path())
-@click.option("-v", "--verbose", is_flag=True)
-def dockerize(model, folder, verbose):
+@click.option("-s", "--silent", is_flag=True)
+def dockerize(model, folder, silent):
     """Put trained model into docker """
 
-    if verbose:
+    if not silent:
         logging.basicConfig(level=logging.INFO)
 
     api.dockerize_model(model, folder)

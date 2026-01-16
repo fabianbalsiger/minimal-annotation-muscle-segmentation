@@ -51,11 +51,14 @@ def test(model, images, refs, preds=None, *, inference=True, side=None, tempdir=
                 if side == "LR":
                     # split into halves (eg. left and right sides)
                     LOGGER.info(f"Split images into halves")
+                    idx = None
                     for channel in range(nchannel):
                         image = io.load(images[index][channel])
-                        imageA, imageB = io.split(image, axis=0)
+                        imageA, imageB = io.split(image, axis=0, idx=idx)
                         io.save(tmp / indir / imagename.format(index=index, side="A", channel=channel), imageA)
                         io.save(tmp / indir / imagename.format(index=index, side="B", channel=channel), imageB)
+                        # keep same split index for all channels
+                        idx = imageA.shape[0]
                     num += 2
                 else:
                     # do not split

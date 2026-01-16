@@ -44,12 +44,14 @@ def init_labels(num):
     return Labels(indices, descr)
 
 
-def split(image, axis, auto=True):
+def split(image, axis, *, idx=None, auto=True):
     """split images along axis"""
     if not axis in tuple(range(image.ndim)):
         raise ValueError(f"Invalid axis: {axis}")
-    
-    if auto:
+    if idx:
+        # use provided index
+        nx = idx
+    elif auto:
         mask = image.array > np.percentile(np.unique(image.array), 5)
         center = np.mean(np.stack(np.nonzero(mask)), axis=1)
         nx = int(center[axis] + 0.5)

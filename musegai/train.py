@@ -149,13 +149,15 @@ def train(
                 
                 labelsA, labelsB = io.split(labelmap, split_axis)
                 keepA, keepB = np.any(labelsA.array > 0), np.any(labelsB.array > 0)
+                # keep same split index for all channels
+                idx = labelsA.shape[split_axis]
 
                 if keepA:
                     io.save(data_dir / labeldir / roiname.format(num=num), labelsA)
                     for channel in range(nchannel):
                         image = io.load(images[index][channel])
                         image.array = image.array[..., nprune:]
-                        imageA, _ = io.split(image, split_axis)
+                        imageA, _ = io.split(image, split_axis, idx=idx)
                         io.save(data_dir / imagedir / imagename.format(num=num, channel=channel), imageA)
                     num += 1
 
@@ -164,7 +166,7 @@ def train(
                     for channel in range(nchannel):
                         image = io.load(images[index][channel])
                         image.array = image.array[..., nprune:]
-                        _, imageB = io.split(image, split_axis)
+                        _, imageB = io.split(image, split_axis, idx=idx)
                         io.save(data_dir / imagedir / imagename.format(num=num, channel=channel), imageB)
                     num += 1
 
