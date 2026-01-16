@@ -110,9 +110,12 @@ def infer(model, images, outputs=None, *, side=None, tempdir=None, copy_inputs=F
         io.save(filename, rois[index])
         io.save_labels(filename.parent / "labels.txt", labels)
         if copy_inputs:
-            for chan in images[index]:
+            for i, chan in enumerate(images[index]):
                 image = io.load(chan)
                 io.save(filename.parent / chan.name, image)
+                if i == 0:
+                    suffixes = ''.join(filename.suffixes)
+                    io.save(filename.parent / f'vol{suffixes}', image)
 
 
 def tame_side(side):

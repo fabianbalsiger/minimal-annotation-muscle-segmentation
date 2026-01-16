@@ -44,17 +44,25 @@ def init_labels(num):
     return Labels(indices, descr)
 
 
-def split(image, axis):
+def split(image, axis, auto=True):
     """split images along axis"""
     if not axis in tuple(range(image.ndim)):
         raise ValueError(f"Invalid axis: {axis}")
+    
+    if auto:
+        mask = image.array > np.percentile(np.unique(image.array), 5)
+        center = np.mean(np.stack(np.nonzero(mask)), axis=1)
+        nx = int(center[axis] + 0.5)
+    else:
+        nx = image.shape[axis] // 2
+
     # first half
-    slices = [slice(n // 2) if i == axis else slice(None) for i, n in enumerate(image.shape)]
+    slices = [slice(nx) if i == axis else slice(None) for i, n in enumerate(image.shape)]
     first = Image(image.array[tuple(slices)], **image.metadata)
     # second half
-    slices = [slice(n // 2, n) if i == axis else slice(None) for i, n in enumerate(image.shape)]
+    slices = [slice(nx, n) if i == axis else slice(None) for i, n in enumerate(image.shape)]
     origin = list(image.origin)
-    origin[axis] = image.origin[axis] + image.spacing[axis] * image.shape[axis] // 2
+    origin[axis] = image.origin[axis] + image.spacing[axis] * nx
     second = Image(image.array[tuple(slices)], **{**image.metadata, "origin": origin})
     return first, second
 

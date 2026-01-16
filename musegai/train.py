@@ -211,3 +211,13 @@ def train(
         folds = [int(dirname.parent.name.split("_")[1]) for dirname in fold_dirs]
         # make dockerfile
         dockerutils.make_dockerfile(model, outdir, nchannel, folds=folds, nepoch=nepoch)
+
+
+def dockerize(model, root, nchannel=1, folds=(0, 1, 2, 3, 4), nepoch=250):
+    LOGGER.info(f"\nGenerate dockerfile for model {model}")
+    root = pathlib.Path(root)
+    # list folds
+    fold_dirs = list((root / "nnUNet_results").rglob("fold_*/checkpoint_final.pth"))
+    folds = [int(dirname.parent.name.split("_")[1]) for dirname in fold_dirs]
+    # make dockerfile
+    dockerutils.make_dockerfile(model, root, nchannel, folds=folds, nepoch=nepoch)

@@ -505,5 +505,20 @@ def test(model, data, root, dest, filename, dirname, format, side, tempdir, verb
     click.echo("Done.")
 
 
+
+@cli.command(context_settings={"show_default": True})
+@click.argument("model")
+@click.argument("folder", type=click.Path())
+@click.option("-v", "--verbose", is_flag=True)
+def dockerize(model, folder, verbose):
+    """Put trained model into docker """
+
+    if verbose:
+        logging.basicConfig(level=logging.INFO)
+
+    api.dockerize_model(model, folder)
+    click.echo("Done.")
+
+
 if __name__ == "__main__":
     cli()  # pylint: disable=no-value-for-parameter
