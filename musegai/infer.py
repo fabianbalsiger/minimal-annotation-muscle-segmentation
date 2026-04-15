@@ -70,6 +70,10 @@ def infer(model, images, outputs=None, *, side=None, tempdir=None, copy_inputs=F
         # run model
         dockerutils.run_inference(model, tmp)
 
+        if labels is None:
+            # get label names
+            labels = io.load_labels(tmp / "labels.txt")        
+
         # recover outputs
         rois = []
         for index in range(nimage):
@@ -77,7 +81,7 @@ def infer(model, images, outputs=None, *, side=None, tempdir=None, copy_inputs=F
                 labelmapA = io.load(tmp / outdir / roiname.format(index=index, side="A"))
                 labelmapB = io.load(tmp / outdir / roiname.format(index=index, side="B"))
                 # increment left side
-                max_label = np.max(labelmapA)
+                max_label = np.max(labels.indices).astype(labelmapB.array.dtype)
                 labelmapB.array[labelmapB.array > 0] += max_label
                 labelmap = io.heal(labelmapA, labelmapB, axis=0)
             else:
@@ -85,9 +89,7 @@ def infer(model, images, outputs=None, *, side=None, tempdir=None, copy_inputs=F
 
             rois.append(labelmap)
 
-        if labels is None:
-            # get label names
-            labels = io.load_labels(tmp / "labels.txt")
+
 
     # fix labels sides
     if side == "LR":
