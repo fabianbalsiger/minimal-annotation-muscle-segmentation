@@ -20,7 +20,7 @@ def list():
     models = api.list_models()
     # no argument: list available models
     click.echo("Available segmentation models:")
-    for available_model in models:
+    for available_model in sorted(models):
         click.echo(f"\t{available_model}")
     sys.exit(0)
 
