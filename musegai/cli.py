@@ -5,10 +5,10 @@ import logging
 import pathlib
 import re
 import sys
-
+import shutil
 import click
 
-from musegai import api
+from musegai import api, utils
 
 
 @click.group()
@@ -505,7 +505,6 @@ def test(model, data, root, dest, filename, dirname, format, side, tempdir, sile
     click.echo("Done.")
 
 
-
 @cli.command(context_settings={"show_default": True})
 @click.argument("model")
 @click.argument("folder", type=click.Path())
@@ -518,6 +517,68 @@ def dockerize(model, folder, silent):
 
     api.dockerize_model(model, folder)
     click.echo("Done.")
+
+
+@cli.command(context_settings={"show_default": True})
+@click.argument('pattern1')
+@click.argument('pattern2')
+@click.option('-r', "--root1", type=click.Path())
+@click.option("--root2", type=click.Path())
+@click.option("--dest", type=click.Path(), default='results')
+@click.option('-o', "--overwrite", is_flag=True)
+@click.option('-m', '--metrics', default='dsc', help='List of metrics comma separated (choices: dsc, nsd, hd95)')
+def compare(pattern1, pattern2, root1, root2, dest, overwrite, metrics):
+    """ Compare segmentations """
+
+    # destination
+    dest = pathlib.Path(dest)
+    if dest.exists():
+        if overwrite:
+            shutil.rmtree(dest)
+        else:
+            click.echo(f'Destination already exists: {dest}.')
+            sys.exit(0)
+
+
+    if root1 is None:
+        root1 = './'
+    if root2 is None:
+        root2 = root1
+    
+    files1 = sorted(utils.find_files(root1, pattern1))
+    files2 = sorted(utils.find_files(root2, pattern2))
+
+    # check images
+    if not files1:
+        click.echo(f"No files found for pattern: {pattern1}")
+        sys.exit(0)
+    if not files2:
+        click.echo(f"No files found for pattern: {pattern2}")
+        sys.exit(0)
+
+    # check number of references
+    if len(files1) != len(files2):
+        click.echo(f'Mismatch in the number of files: {len(files1)} != {len(files2)}')
+        utils.print_files(files1, msg=pattern1)
+        utils.print_files(files2, msg=pattern2)
+        sys.exit(0)
+
+    utils.print_files_compare(files1, files2)
+    click.confirm("Are all images/rois correctly matched?", abort=True)
+
+    # metrics
+    metrics = [m.strip() for m in metrics.split(',')]
+
+    dest.mkdir(exist_ok=True, parents=True)
+    opts = {
+        'statsfile': dest / 'stats.csv',
+        'figfile': dest / 'stats.png',
+        'figtitle': None,
+        'stats': metrics,
+    }
+    print('Processing...')
+    api.compare_preds([files[0] for files in files1], [files[0] for files in files2], **opts)
+    print('Done.')
 
 
 if __name__ == "__main__":

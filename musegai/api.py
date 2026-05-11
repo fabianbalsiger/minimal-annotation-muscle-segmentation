@@ -9,3 +9,4 @@ run_model = infer.infer
 train_model = train.train
 dockerize_model = train.dockerize
 test_model = test.test
+compare_preds = test.compare

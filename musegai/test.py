@@ -136,7 +136,7 @@ def test(model, images, refs, preds=None, *, inference=True, side=None, tempdir=
     kw = {
         'labels': labels_refs,
         'labels_preds': labels_preds,
-        'options': {'b_iou.d': 5, 'nsd.tau': 3},
+        'options': {'b_iou.d': 5, 'nsd.tau': 1},
     }
     process = metrics.Process(references, predictions, **kw)
     stats = ['dsc', 'b_iou', 'nsd', 'hd95']
@@ -181,3 +181,53 @@ def tame_side(side):
     elif side.upper() in ["NONE", "NA"]:
         return "NA"
     raise ValueError(f"Unknown side value: {side}")
+
+
+def compare(refs, preds, *, stats=['dsc'], statsfile=None, figfile=None, figtitle='compare'):
+
+    nimage = len(refs)
+
+    # check references
+    labels_refs = []
+    for index in range(nimage):
+        filename = refs[index]
+        if not io.is_image(filename):
+            raise ValueError(f'Missing reference: #{index}')
+        labelfile = pathlib.Path(filename).parent / 'labels.txt'
+        if labelfile.is_file():
+            labels_ref = io.load_labels(labelfile)
+            labels_refs.append(labels_ref.to_dict())
+        
+    # check predictions
+    labels_preds = []
+    for index in range(nimage):
+        if not io.is_image(preds[index]):
+            raise ValueError(f'Missing prediction: #{index}')
+        
+        # load labels
+        labelfile = pathlib.Path(preds[0]).parent / 'labels.txt'
+        if labelfile.is_file():
+            labels_pred = io.load_labels(labelfile)
+            labels_preds.append(labels_pred.to_dict())
+       
+    # load images
+    references = [io.load(file) for file in refs]
+    predictions = [io.load(file) for file in preds]
+        
+    # process segmentations
+    kw = {
+        'labels': labels_refs,
+        'labels_preds': labels_preds,
+        'options': {'b_iou.d': 5, 'nsd.tau': 1},
+    }
+    process = metrics.Process(references, predictions, **kw)
+    data = process(stats, subset=None)
+    
+    # store stats
+    if statsfile:
+        io.save_csv(statsfile, data)
+
+    # plot
+    if figfile:
+        fig = metrics.plot_metrics(data, detailed=stats, title=figtitle)
+        fig.savefig(figfile, dpi=300)
