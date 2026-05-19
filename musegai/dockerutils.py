@@ -20,7 +20,7 @@ def list_models(local=True):
         client = docker.from_env()
         for image in client.images.list():
             try:
-                if image.tags[0].startswith("museg"):
+                if image.tags[0].startswith("museg") or image.labels.get('model') == 'MUSEG':
                     models.append(image.tags[0])
             except IndexError:
                 pass
@@ -125,8 +125,8 @@ def run_training(model, dirname, folds=(0, 1, 2, 3, 4), nepoch=1000, preprocess=
 
 def get_ressources():
     """get the path to the ressources folder"""
-    here = pathlib.Path(__file__).parent
-    return here / 'data'
+    here = pathlib.Path(__file__).parent.parent
+    return here / 'docker'
 
 
 def make_dockerfile(model, dirname, nchannel, folds=(0, 1, 2, 3, 4), nepoch=1000):

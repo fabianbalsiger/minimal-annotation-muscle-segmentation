@@ -28,10 +28,14 @@ def make_docker(title, outdir, folds=(0, 1, 2, 3, 4), trainer="nnUNetTrainer", d
 #
 # dockerfile template
 
-DOCKER_FILE = """FROM nvidia/cuda:11.4.3-runtime-ubuntu20.04
-LABEL application={title}
+#DOCKER_FILE = """FROM nvidia/cuda:11.4.3-runtime-ubuntu20.04
+DOCKER_FILE = """FROM nvidia/cuda:13.1.2-cudnn-devel-ubuntu24.04
+LABEL application="Muscle segmentation using nnU-Net V2"
+LABEL model=MUSEG
+LABEL title={title}
 LABEL author="Fabian Balsiger and Pierre-Yves Baudin"
 LABEL nchannel={nchannel}
+
 
 ENV PYTHONUNBUFFERED=1
 
@@ -46,10 +50,8 @@ RUN apt update --yes --quiet && DEBIAN_FRONTEND=noninteractive apt install --yes
 && rm -rf /var/lib/apt/lists/*
 
 # Switch default Python version to 3.10
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 && \
-update-alternatives --install /usr/bin/python python /usr/bin/python3.10 2 && \
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 2 && \
 update-alternatives --set python /usr/bin/python3.10 && \
-update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1 && \
 update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 2 && \
 update-alternatives --set python3 /usr/bin/python3.10
 

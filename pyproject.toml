@@ -13,6 +13,7 @@ dependencies = [
     "docker",
     "click",
     "matplotlib",
+    "scipy",
 ]
 
 [project.optional-dependencies]
