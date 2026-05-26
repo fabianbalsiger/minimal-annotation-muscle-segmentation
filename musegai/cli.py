@@ -7,6 +7,7 @@ import re
 import sys
 import shutil
 import click
+import re
 
 from musegai import api, utils
 
@@ -20,8 +21,15 @@ def list():
     models = api.list_models()
     # no argument: list available models
     click.echo("Available segmentation models:")
-    for available_model in sorted(models):
-        click.echo(f"\t{available_model}")
+    regex = re.compile(r'(\w+)-(.+):(\w+)')
+    prefixes = sorted({regex.search(model).group(1) for model in models})
+
+    for prefix in prefixes:
+        click.echo(f"{prefix}")
+        for model in sorted(models):
+            if not model.startswith(prefix):
+                continue
+            click.echo(f"\t{model}")
     sys.exit(0)
 
 
