@@ -188,8 +188,9 @@ def segment(images, dest, dirname, filename, format, model, side, tempdir, silen
 @click.option("--nepoch", type=click.Choice(["1", "10", "20", "50", "100", "250", "500", "750", "1000"]), default="250", help="Number of epochs")
 # @click.option("--split", is_flag=True, help="Split datasets into left and right parts")
 @click.option("--continue", "continue_training", is_flag=True, help="Continue training.")
+@click.option("--random-pruning", is_flag=True, help="Remove non-annotated slices randomly.")
 @click.option("-s", "--silent", is_flag=True)
-def train(model, images, refs, train, dockerfile, nchannel, labelfile, root, dest, silent, folds, preprocess, nepoch, continue_training):
+def train(model, images, refs, train, dockerfile, nchannel, labelfile, root, dest, silent, folds, preprocess, nepoch, continue_training, random_pruning):
     """Train segmentation model on dataset
 
     \b
@@ -306,6 +307,7 @@ def train(model, images, refs, train, dockerfile, nchannel, labelfile, root, des
         preprocess=preprocess,
         nepoch=nepoch,
         continue_training=continue_training,
+        random_pruning=random_pruning,
     )
 
 

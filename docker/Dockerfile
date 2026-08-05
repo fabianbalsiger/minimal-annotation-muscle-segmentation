@@ -1,4 +1,5 @@
-FROM nvidia/cuda:11.4.3-runtime-ubuntu20.04
+# FROM nvidia/cuda:11.4.3-runtime-ubuntu20.04
+FROM nvidia/cuda:13.3.1-runtime-ubuntu26.04
 
 LABEL application="Muscle segmentation training using the nnU-Net V2"
 LABEL author="Fabian Balsiger and Pierre-Yves Baudin"
@@ -16,10 +17,8 @@ RUN apt update --yes --quiet && DEBIAN_FRONTEND=noninteractive apt install --yes
  && rm -rf /var/lib/apt/lists/*
 
 # Switch default Python version to 3.10
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 && \
- update-alternatives --install /usr/bin/python python /usr/bin/python3.10 2 && \
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 2 && \
  update-alternatives --set python /usr/bin/python3.10 && \
- update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1 && \
  update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 2 && \
  update-alternatives --set python3 /usr/bin/python3.10
 

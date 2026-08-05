@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker build -t trainer-museg:v1.1.0 .
+docker build -t trainer-museg:latest .

@@ -32,8 +32,8 @@ def train(
     folds=(0, 1, 2, 3, 4),
     nepoch=250,
     preprocess=True,
-    random_pruning=False,
     continue_training=False,
+    random_pruning=False,
 ):
     """train new model on provided datasets
 
