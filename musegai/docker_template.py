@@ -28,9 +28,7 @@ def make_docker(title, outdir, folds=(0, 1, 2, 3, 4), trainer="nnUNetTrainer", d
 #
 # dockerfile template
 
-#DOCKER_FILE = """FROM nvidia/cuda:11.4.3-runtime-ubuntu20.04
-# DOCKER_FILE = """FROM nvidia/cuda:13.1.2-cudnn-devel-ubuntu24.04
-DOCKER_FILE = """nvidia/cuda:13.3.1-runtime-ubuntu26.04
+DOCKER_FILE = """FROM nvidia/cuda:13.3.1-runtime-ubuntu26.04
 LABEL application="Muscle segmentation using nnU-Net V2"
 LABEL model=MUSEG
 LABEL title={title}
