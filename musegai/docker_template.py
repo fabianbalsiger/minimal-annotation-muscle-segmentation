@@ -72,7 +72,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Set nnU-Net environment variable
 ENV nnUNet_results="/nnUNet_results"
 ENV nnUNet_raw="/nnUNet_raw"
-ENV nnUNet_preprocessed = "/nnUNet_preprocessed"
+ENV nnUNet_preprocessed="/nnUNet_preprocessed"
 
 COPY ./labels.txt ./labels.txt
 
