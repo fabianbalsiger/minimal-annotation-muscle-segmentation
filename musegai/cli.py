@@ -177,6 +177,7 @@ def segment(images, dest, dirname, filename, format, model, side, tempdir, silen
 @click.argument("model")
 @click.argument("images")
 @click.argument("refs")
+@click.option("--continue", "continue_training", is_flag=True, help="Continue training.")
 @click.option("--labelfile", type=click.Path(exists=True), required=True, help="ITK-Snap label file")
 @click.option("--train/--no-train", default=True, help="Train model.")
 @click.option("--dockerfile/--no-dockerfile", default=True, help="Make dockerfile.")
@@ -186,8 +187,6 @@ def segment(images, dest, dirname, filename, format, model, side, tempdir, silen
 @click.option("--nchannel", type=int, default=1, help="Expected number of channels")
 @click.option("--folds", help="specify fold numbers to train as tuple")
 @click.option("--nepoch", type=click.Choice(["1", "10", "20", "50", "100", "250", "500", "750", "1000"]), default="250", help="Number of epochs")
-# @click.option("--split", is_flag=True, help="Split datasets into left and right parts")
-@click.option("--continue", "continue_training", is_flag=True, help="Continue training.")
 @click.option("--random-pruning", is_flag=True, help="Remove non-annotated slices randomly.")
 @click.option("-s", "--silent", is_flag=True)
 def train(model, images, refs, train, dockerfile, nchannel, labelfile, root, dest, silent, folds, preprocess, nepoch, continue_training, random_pruning):
@@ -217,6 +216,10 @@ def train(model, images, refs, train, dockerfile, nchannel, labelfile, root, des
         folds = (0, 1, 2, 3, 4)
     else:
         folds = tuple(map(int, folds.split(",")))
+
+    if continue_training:
+        click.echo('Continue training: preprocessing disabled')
+        preprocess = False
 
     # find images
     if pathlib.Path(images).is_absolute():
